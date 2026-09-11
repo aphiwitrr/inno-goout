@@ -1,0 +1,5 @@
+[install]
+registry = {
+  url = "$NPM_REPOSITORY",
+  token = "$NPM_TOKEN_READONLY"
+}

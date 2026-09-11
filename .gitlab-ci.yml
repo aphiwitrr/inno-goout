@@ -1,0 +1,109 @@
+before_script:
+  - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $DOCKER_REGISTRY
+  - DOCKER_IMAGE="$DOCKER_REGISTRY/project4/card-registration/${CI_PROJECT_NAME,,}"
+  - SAFE_REF_NAME=${CI_COMMIT_REF_NAME,,};
+  - DOCKER_TAG_NAME=${SAFE_REF_NAME//\//-};
+  - if [ -z "$CI_COMMIT_TAG" ]; then
+      ARG_APP_VERSION="0.$CI_PIPELINE_ID.0-dev";
+    else
+      ARG_APP_VERSION="$CI_COMMIT_TAG";
+    fi
+
+stages:
+  - test
+  - build
+  - delivery
+  - pull-test
+  - cleanup
+
+quality:
+  stage: test
+  variables:
+    SONAR_PROJECT_KEY: "MOI-Project4-CardRegistration-$CI_PROJECT_NAME"
+    SONAR_PROJECT_NAME: "MOI / Project 4 / Card Registration / $CI_PROJECT_NAME"
+  script:
+    - mkdir coverage
+    - docker build -t $DOCKER_IMAGE:test --build-arg NPM_REPOSITORY=$NPM_REPOSITORY --build-arg NPM_TOKEN_READONLY=$NPM_TOKEN_READONLY .
+    - docker run --rm -v "$(pwd)/coverage/":/report/ -w /app/ $DOCKER_IMAGE:test sh -c "bun run coverage && cp ./coverage/lcov.info /report/lcov.info"
+    - sonar-scanner
+      -Dsonar.qualitygate.wait="true"
+      -Dsonar.sources="app"
+      -Dsonar.host.url="$SONAR_HOST"
+      -Dsonar.login="$SONAR_TOKEN"
+      -Dsonar.projectKey="$SONAR_PROJECT_KEY"
+      -Dsonar.projectName="$SONAR_PROJECT_NAME"
+      -Dsonar.projectVersion="$CI_PIPELINE_ID"
+      -Dsonar.analysis.mode="publish"
+      -Dsonar.coverage.exclusions="**/node_modules/**,**/test/**,**/dist/**,**/coverage-reports/**,**/coverage/**,**/coverage-report/**,**/coverage-index.html"
+      -Dsonar.javascript.lcov.reportPaths="coverage/lcov.info"
+  only:
+    - tags
+    - main
+    - uat
+    - sit
+    - develop
+    - /^feature\/.*$/
+    - /^hotfix\/.*$/
+  tags:
+    - harbor
+
+build:
+  stage: build
+  script:
+    - docker build --build-arg ARG_APP_VERSION=$ARG_APP_VERSION --build-arg NPM_REPOSITORY=$NPM_REPOSITORY --build-arg NPM_TOKEN_READONLY=$NPM_TOKEN_READONLY -t "$DOCKER_IMAGE:$DOCKER_TAG_NAME" .
+  only:
+    - tags
+    - main
+    - uat
+    - sit
+    - develop
+    - /^feature\/.*$/
+    - /^hotfix\/.*$/
+  tags:
+    - harbor
+
+delivery:
+  stage: delivery
+  script:
+    - docker push $DOCKER_IMAGE:$DOCKER_TAG_NAME
+    - cosign sign --yes --key /home/devops/cosign/cosign.key $(docker image inspect $DOCKER_IMAGE:$DOCKER_TAG_NAME --format '{{index .RepoDigests 0}}')
+  only:
+    - tags
+    - sit
+    - develop
+  tags:
+    - harbor
+
+pull-test:
+  stage: pull-test
+  script:
+    - docker rmi -f $DOCKER_IMAGE:$DOCKER_TAG_NAME
+    - docker pull $DOCKER_IMAGE:$DOCKER_TAG_NAME
+  only:
+    - tags
+    - main
+    - uat
+    - sit
+    - develop
+    - /^hotfix\/.*$/
+  tags:
+    - harbor
+  when: delayed
+  start_in: 60 seconds
+
+cleanup:
+  stage: cleanup
+  script:
+    - docker rmi -f "$DOCKER_IMAGE:test" "$DOCKER_IMAGE:$DOCKER_TAG_NAME"
+    - rm -rf coverage-reports
+  only:
+    - tags
+    - main
+    - uat
+    - sit
+    - develop
+    - /^feature\/.*$/
+    - /^hotfix\/.*$/
+  tags:
+    - harbor
+  when: always

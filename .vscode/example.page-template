@@ -1,0 +1,64 @@
+<script lang="ts" setup>
+
+</script>
+
+<template>
+  <div class="text-headline-small font-weight-semibold mb-4">
+    index
+  </div>
+
+  <div class="text-title-large font-weight-semibold mb-2 text-primary">
+    ตรวจสอบสิทธิ์
+  </div>
+
+  <v-text-field label="หมายเลขกำกับบัตร" variant="outlined" density="compact" persistent-placeholder rounded="lg"
+    hide-details="auto" />
+
+
+  <v-btn prepend-icon="mdi-printer" color="primary" variant="outlined" text="พิมพ์รายงาน" rounded="lg" />
+  <v-btn prepend-icon="mdi-content-save" color="primary" rounded="lg" variant="flat" text="บันทึกข้อมูล" />
+
+  <v-sheet border rounded>
+    <v-table height="calc(100vh - 450px)" fixed-header>
+      <thead>
+        <tr class="text-white text-body-large rounded-lg">
+          <th class="text-center bg-primary rounded-s-lg" scope="col">
+            ::
+          </th>
+          <th class="text-center bg-primary" scope="col">
+            ครั้งที่
+          </th>
+          <th class="text-center bg-primary" scope="col">
+            กล่องที่
+          </th>
+
+          <th class="text-center bg-primary" scope="col">
+            กล่องที่หลังทำ Pre-perso
+          </th>
+          <th class="text-center bg-primary rounded-e-lg" scope="col">
+            จำนวนบัตร/กล่อง
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in []" :key="index">
+          <td class="text-center">
+            {{ index + 1 }}
+          </td>
+          <td class="text-center">
+            {{ xxx }}
+          </td>
+          <td class="text-center">
+            {{ xxx }}
+          </td>
+          <td class="text-center">
+            {{ xxx }}
+          </td>
+          <td class="text-center">
+            {{ xxx }}
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
+  </v-sheet>
+</template>

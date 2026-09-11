@@ -1,0 +1,17 @@
+@use 'vuetify' with (
+$color-pack: true,
+$body-font-family: 'Bai Jamjuree' !important,
+$font-size-root: 16px,
+$line-height-root: 1.5,
+)
+
+:root
+  --v-list-prepend-gap: 16px
+
+.font-weight-semibold
+  font-weight: 600 !important
+
+// SweetAlert2 override (อยู่นอก @layer จึงมี priority สูงกว่า)
+.swal2-popup
+  border-radius: 16px !important
+  font-family: 'Bai Jamjuree', sans-serif

@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "Nuxtr.nuxt-vscode-extentions",
+    "vuetifyjs.vuetify-vscode",
+  ]
+}

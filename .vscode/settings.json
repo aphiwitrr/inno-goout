@@ -1,0 +1,20 @@
+{
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "typescript.format.semicolons": "insert",
+  "typescript.preferences.quoteStyle": "double",
+  "eslint.validate": [
+    "typescript",
+    "vue"
+  ],
+  "eslint.format.enable": true,
+  "eslint.useFlatConfig": true,
+  "editor.formatOnSave": true,
+  "sonarlint.connectedMode.project": {
+    "connectionId": "https-sonarqube-cw-cdg-co-th-",
+    "projectKey": "MOI-Project4-CardRegistration-template"
+  },
+}

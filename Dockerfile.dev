@@ -1,0 +1,21 @@
+FROM oven/bun:1.3-alpine
+
+WORKDIR /app
+
+EXPOSE 3000
+
+ARG NPM_REPOSITORY
+ARG NPM_TOKEN_READONLY
+ENV NPM_REPOSITORY=$NPM_REPOSITORY
+ENV NPM_TOKEN_READONLY=$NPM_TOKEN_READONLY
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime \
+  && echo "Asia/Bangkok" > /etc/timezone
+
+COPY package.json bun.lock tsconfig.json bunfig.toml ./
+
+RUN bun install --verbose
+
+COPY . .
+
+CMD ["bun", "run", "dev"]
